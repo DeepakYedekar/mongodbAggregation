@@ -13,4 +13,4 @@ const subscriptionSchema = new Schema({
 
 
 
-export const Subscription = mongoose.model("Subscription", subscriptionSchema)
+export const Subscription = mongoose.model("Subscription", subscriptionSchema) // model name will be converted to lower case and make the name plural.

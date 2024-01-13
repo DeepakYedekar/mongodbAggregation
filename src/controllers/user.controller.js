@@ -14,7 +14,7 @@ const generateAccessAndRefereshTokens = async(userId) =>{
         const refreshToken = user.generateRefreshToken()
 
         user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave: false })
+        await user.save({ validateBeforeSave: false }) // avoid the validation
 
         return {accessToken, refreshToken}
 
@@ -138,7 +138,7 @@ const loginUser = asyncHandler(async (req, res) =>{
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
-        httpOnly: true,
+        httpOnly: true,  // By using this your cookies will modify only by the server not from frontend
         secure: true
     }
 
@@ -167,7 +167,7 @@ const logoutUser = asyncHandler(async(req, res) => {
             }
         },
         {
-            new: true
+            new: true  // this will return the new document after update
         }
     )
 
@@ -386,13 +386,13 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         {
             $addFields: {
                 subscribersCount: {
-                    $size: "$subscribers"
+                    $size: "$subscribers"  // this will count the subscriber count
                 },
                 channelsSubscribedToCount: {
-                    $size: "$subscribedTo"
+                    $size: "$subscribedTo" 
                 },
                 isSubscribed: {
-                    $cond: {
+                    $cond: { // this is a condition
                         if: {$in: [req.user?._id, "$subscribers.subscriber"]},
                         then: true,
                         else: false
@@ -427,10 +427,12 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 })
 
 const getWatchHistory = asyncHandler(async(req, res) => {
+    // (req.user._id) this will only return the string
+    // we are using nasted aggregation pipeline in this
     const user = await User.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
+                _id: new mongoose.Types.ObjectId(req.user._id)  // but this will convert that string into mongoose id.
             }
         },
         {
